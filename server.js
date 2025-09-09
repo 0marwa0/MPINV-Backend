@@ -11,7 +11,7 @@ app.use(express.json());
 
 // 1. Connect to MongoDB Atlas
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect("mongodb+srv://MPINV:0000@cluster0.wh2mnc2.mongodb.net/", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -61,5 +61,5 @@ app.get("/api/leads", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
