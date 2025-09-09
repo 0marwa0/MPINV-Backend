@@ -11,10 +11,13 @@ app.use(express.json());
 
 // 1. Connect to MongoDB Atlas
 mongoose
-  .connect("mongodb+srv://MPINV:0000@cluster0.wh2mnc2.mongodb.net/", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    "mongodb+srv://MPINV:0000@cluster0.wh2mnc2.mongodb.net/test?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ Mongo error:", err));
 
