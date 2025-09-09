@@ -8,6 +8,13 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+// serve static files
+app.use(express.static("public"));
+
+// fallback if needed
+app.get("/", (req, res) => {
+  res.sendFile("index.html", { root: "public" });
+});
 
 // 1. Connect to MongoDB Atlas
 mongoose
