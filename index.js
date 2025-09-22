@@ -140,24 +140,38 @@ app.post("/api/listings/:id/send-voucher", async (req, res) => {
 
     // Call WATI API
 
+    // const response = await fetch(
+    //   `${WATI_API_URL}/api/v1/sendSessionMessage/${"971" + phone}`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       Authorization: `Bearer ${WATI_API_TOKEN}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       messageText: `test voucher 🎉`,
+    //       // attachment: qrUrl, // hosted QR image
+    //     }),
+    //   }
+    // );
     const response = await fetch(
-      `${WATI_API_URL}/api/v1/sendSessionMessage/${"971" + phone}`,
+      `${WATI_API_URL}/api/v1/sendSessionMessage/${
+        "971" + phone
+      }?messageText=${encodeURIComponent(
+        "This is test 🚀"
+      )}&attachment=${encodeURIComponent(qrUrl)}`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${WATI_API_TOKEN}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          messageText: `test voucher 🎉`,
-          attachment: qrUrl, // hosted QR image
-        }),
       }
     );
-
     // Parse response safely
-    console.log("📞 WATI response status:", response);
+
     const text = await response.text();
+    console.log("📦 Raw WATI response:", text);
+
     let data;
     try {
       data = JSON.parse(text);
