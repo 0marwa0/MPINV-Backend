@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leads List</title>
+    <title>Admin Panel</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
       rel="stylesheet"
+    />
+    <!-- Toastify CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
     />
     <style>
       body {
@@ -19,8 +25,28 @@
 
       h1 {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         color: #222;
+      }
+
+      nav {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      nav button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #007bff;
+        color: #fff;
+      }
+
+      nav button.active {
+        background: #0056b3;
       }
 
       .table-container {
@@ -63,27 +89,56 @@
         transition: background-color 0.3s ease;
       }
 
-      @media (max-width: 768px) {
-        th,
-        td {
-          padding: 12px 10px;
-          font-size: 0.9rem;
-        }
-      }
-
-      /* Optional: make header sticky on scroll */
       thead th {
         position: sticky;
         top: 0;
         z-index: 2;
       }
+
+      .action-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .action-btn:hover {
+        background: #218838;
+      }
     </style>
   </head>
   <body>
-    <h1>Leads</h1>
+    <h1 id="pageTitle">Leads</h1>
+    <nav>
+      <button id="leadsBtn" class="active">Leads</button>
+      <button id="listingsBtn">Listings</button>
+    </nav>
+
     <div class="table-container">
-      <table id="leadsTable">
-        <thead>
+      <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+      const pageTitle = document.getElementById("pageTitle");
+      const leadsBtn = document.getElementById("leadsBtn");
+      const listingsBtn = document.getElementById("listingsBtn");
+      const tableHead = document.getElementById("tableHead");
+      const tableBody = document.getElementById("tableBody");
+
+      // Fetch Leads
+      async function fetchLeads() {
+        pageTitle.textContent = "Leads";
+        leadsBtn.classList.add("active");
+        listingsBtn.classList.remove("active");
+
+        tableHead.innerHTML = `
           <tr>
             <th>First Name</th>
             <th>Last Name</th>
@@ -92,44 +147,126 @@
             <th>Country</th>
             <th>Experience</th>
           </tr>
-        </thead>
-        <tbody>
-          <!-- Data will be inserted here -->
-        </tbody>
-      </table>
-    </div>
+        `;
+        tableBody.innerHTML = "";
 
-    <script>
-      async function fetchLeads() {
         try {
-          const response = await fetch("http://localhost:5000/api/leads");
-          const result = await response.json();
-
+          const res = await fetch("http://localhost:5000/api/leads");
+          const result = await res.json();
           if (result.success) {
-            const tbody = document.querySelector("#leadsTable tbody");
-            tbody.innerHTML = "";
-
             result.data.forEach((lead) => {
               const row = document.createElement("tr");
               row.innerHTML = `
-              <td>${lead.firstName}</td>
-              <td>${lead.lastName}</td>
-              <td>${lead.email}</td>
-              <td>${lead.phone}</td>
-              <td>${lead.country}</td>
-              <td>${lead.experience}</td>
-            `;
-              tbody.appendChild(row);
+                <td>${lead.firstName}</td>
+                <td>${lead.lastName}</td>
+                <td>${lead.email}</td>
+                <td>${lead.phone}</td>
+                <td>${lead.country}</td>
+                <td>${lead.experience}</td>
+              `;
+              tableBody.appendChild(row);
             });
-          } else {
-            console.error("Error fetching leads:", result.error);
           }
         } catch (err) {
           console.error("Error fetching leads:", err);
         }
       }
 
-      // Fetch data on page load
+      // Fetch Listings
+      async function fetchListings() {
+        pageTitle.textContent = "Listings";
+        listingsBtn.classList.add("active");
+        leadsBtn.classList.remove("active");
+
+        tableHead.innerHTML = `
+          <tr>
+            <th>Location</th>
+            <th>State</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Beds</th>
+            <th>Phone (WhatsApp)</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        `;
+        tableBody.innerHTML = "";
+
+        try {
+          const res = await fetch("http://localhost:5000/api/listings");
+          const result = await res.json();
+          if (result.success) {
+            result.data.forEach((listing) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${listing.location}</td>
+                <td>${listing.state}</td>
+                <td>${listing.type}</td>
+                <td>${listing.name}</td>
+                <td>${listing.email}</td>
+                <td>${listing.beds}</td>
+                <td>${listing.phone}</td>
+                <td>${new Date(listing.createdAt).toLocaleString()}</td>
+                <td>
+                  <button class="action-btn" onclick="sendVoucher('${
+                    listing._id
+                  }', '${listing.name}')">
+                    Send QR Voucher
+                  </button>
+                </td>
+              `;
+              tableBody.appendChild(row);
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching listings:", err);
+        }
+      }
+
+      // Send Voucher
+      async function sendVoucher(listingId, name) {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/listings/${listingId}/send-voucher`,
+            {
+              method: "POST",
+            }
+          );
+          const result = await res.json();
+          if (result.success) {
+            Toastify({
+              text: `✅ QR voucher sent to ${name}`,
+              duration: 4000,
+              gravity: "top",
+              position: "right",
+              backgroundColor: "#28a745",
+            }).showToast();
+          } else {
+            Toastify({
+              text: `❌ Failed to send: ${result.error}`,
+              duration: 4000,
+              gravity: "top",
+              position: "right",
+              backgroundColor: "#dc3545",
+            }).showToast();
+          }
+        } catch (err) {
+          Toastify({
+            text: `❌ Error: ${err.message}`,
+            duration: 4000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#dc3545",
+          }).showToast();
+        }
+      }
+
+      // Event listeners
+      leadsBtn.addEventListener("click", fetchLeads);
+      listingsBtn.addEventListener("click", fetchListings);
+
+      // Default page
       fetchLeads();
     </script>
   </body>
