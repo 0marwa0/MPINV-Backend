@@ -41,17 +41,17 @@
         border: none;
         border-radius: 6px;
         cursor: pointer;
-        background: #007bff;
+        background: #000; /* changed from blue */
         color: #fff;
       }
 
       nav button.active {
-        background: #0056b3;
+        background: #333; /* darker black for active */
       }
 
       .table-container {
-        overflow-x: auto;
-        max-width: 1200px;
+        width: auto; /* container fills screen */
+        overflow-x: auto; /* allow scroll when needed */
         margin: 0 auto;
         background: #fff;
         border-radius: 12px;
@@ -60,9 +60,9 @@
       }
 
       table {
-        width: 100%;
+        width: 100%; /* fills available space */
         border-collapse: collapse;
-        min-width: 600px;
+        table-layout: auto; /* lets columns adapt */
       }
 
       th,
@@ -73,7 +73,7 @@
       }
 
       th {
-        background-color: #007bff;
+        background-color: #000; /* changed from blue */
         color: #fff;
         font-weight: 600;
         text-transform: uppercase;
@@ -85,7 +85,7 @@
       }
 
       tr:hover {
-        background-color: #e6f0ff;
+        background-color: #f0f0f0;
         transition: background-color 0.3s ease;
       }
 
@@ -187,6 +187,8 @@
             <th>Email</th>
             <th>Beds</th>
             <th>Phone (WhatsApp)</th>
+            <th>Voucher</th>
+            <th>Voucher Sent</th>
             <th>Created At</th>
             <th>Actions</th>
           </tr>
@@ -207,6 +209,8 @@
                 <td>${listing.email}</td>
                 <td>${listing.beds}</td>
                 <td>${listing.phone}</td>
+                <td>${listing.voucher || ""}</td>
+                <td>${listing.voucherSent ? "✅" : "❌"}</td>
                 <td>${new Date(listing.createdAt).toLocaleString()}</td>
                 <td>
                   <button class="action-btn" onclick="sendVoucher('${
@@ -229,9 +233,7 @@
         try {
           const res = await fetch(
             `http://localhost:5000/api/listings/${listingId}/send-voucher`,
-            {
-              method: "POST",
-            }
+            { method: "POST" }
           );
           const result = await res.json();
           if (result.success) {
@@ -242,9 +244,10 @@
               position: "right",
               backgroundColor: "#28a745",
             }).showToast();
+            fetchListings(); // refresh table
           } else {
             Toastify({
-              text: `❌ Failed to send: ${result.error}`,
+              text: `❌ Failed to send: ${JSON.stringify(result.error)}`,
               duration: 4000,
               gravity: "top",
               position: "right",
