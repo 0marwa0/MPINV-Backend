@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing dependencies..."
+      - npm install
+
+  pre_build:
+    commands:
+      - echo "Running pre-build steps..."
+      # For safety, ensure dotenv is installed
+      - npm install dotenv --save
+
+  build:
+    commands:
+      - echo "Building application..."
+      # If you have a build step (e.g. React frontend), add it here
+      # For backend-only projects, you can skip
+      - npm run build || echo "No build script found, skipping..."
+
+  post_build:
+    commands:
+      - echo "Post-build steps..."
+      # Create deployment zip if needed (Beanstalk expects app source bundle)
+      - zip -r app.zip * .[^.]* -x "node_modules/*"
+
+artifacts:
+  files:
+    - app.zip
