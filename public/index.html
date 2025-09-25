@@ -126,6 +126,12 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
+      // Dynamic API URL - uses current domain in production, localhost in development
+      const API_BASE_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:5000"
+          : `${window.location.protocol}//${window.location.host}`;
+
       const pageTitle = document.getElementById("pageTitle");
       const leadsBtn = document.getElementById("leadsBtn");
       const listingsBtn = document.getElementById("listingsBtn");
@@ -151,7 +157,7 @@
         tableBody.innerHTML = "";
 
         try {
-          const res = await fetch("http://localhost:5000/api/leads");
+          const res = await fetch(`${API_BASE_URL}/api/leads`);
           const result = await res.json();
           if (result.success) {
             result.data.forEach((lead) => {
@@ -196,7 +202,7 @@
         tableBody.innerHTML = "";
 
         try {
-          const res = await fetch("http://localhost:5000/api/listings");
+          const res = await fetch(`${API_BASE_URL}/api/listings`);
           const result = await res.json();
           if (result.success) {
             result.data.forEach((listing) => {
@@ -232,7 +238,7 @@
       async function sendVoucher(listingId, name) {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/listings/${listingId}/send-voucher`,
+            `${API_BASE_URL}/api/listings/${listingId}/send-voucher`,
             { method: "POST" }
           );
           const result = await res.json();
