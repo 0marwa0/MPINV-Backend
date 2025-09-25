@@ -18,9 +18,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const WATI_API_URL = process.env.WATI_API_URL;
-const WATI_API_TOKEN = process.env.WATI_API_TOKEN;
-connectDB();
+const WATI_API_URL =
+  process.env.WATI_API_URL || " https://live-mt-server.wati.io/481115";
+const WATI_API_TOKEN =
+  process.env.WATI_API_TOKEN ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiOThlNGJiMC04YzEyLTQ0MjItOWE5NC1lNGViOTlkMWZjM2YiLCJ1bmlxdWVfbmFtZSI6Im1haG1vdWQuYXNob3VyQG1waW52LmFlIiwibmFtZWlkIjoibWFobW91ZC5hc2hvdXJAbXBpbnYuYWUiLCJlbWFpbCI6Im1haG1vdWQuYXNob3VyQG1waW52LmFlIiwiYXV0aF90aW1lIjoiMDkvMDkvMjAyNSAwODo0NjoyMSIsInRlbmFudF9pZCI6IjQ4MTExNSIsImRiX25hbWUiOiJtdC1wcm9kLVRlbmFudHMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBRE1JTklTVFJBVE9SIiwiZXhwIjoyNTM0MDIzMDA4MDAsImlzcyI6IkNsYXJlX0FJIiwiYXVkIjoiQ2xhcmVfQUkifQ.8Yw-E_eYpvmaGhxQNxgdhpaD6v-vMssFD12DETq3v6I";
+
+await mongoose.connect(
+  "mongodb+srv://MPINV:0000@cluster0.wh2mnc2.mongodb.net/test?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+console.log("✅ MongoDB connected");
+
+//connectDB();
 // Save lead
 app.post("/api/leads", async (req, res) => {
   try {
